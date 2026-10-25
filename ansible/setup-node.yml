@@ -1,0 +1,28 @@
+---
+- name: SoftwareHub Node Configuration
+  hosts: local
+  become: yes
+  tasks:
+    - name: Ensure baseline utility packages are installed
+      apt:
+        name:
+          - git
+          - curl
+          - ca-certificates
+        state: present
+        update_cache: yes
+
+    - name: Ensure Docker service is enabled and running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Verify K3s service status
+      command: systemctl is-active k3s
+      register: k3s_status
+      changed_when: false
+
+    - name: Display K3s service state
+      debug:
+        msg: "K3s service is {{ k3s_status.stdout }}"
